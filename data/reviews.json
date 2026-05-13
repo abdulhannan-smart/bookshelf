@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "bookId": "book_001",
+    "reviewer": "tester",
+    "rating": 5,
+    "body": "test",
+    "id": "review_4f57a8a0",
+    "createdAt": "2026-05-13T14:07:19.675Z"
+  }
+]

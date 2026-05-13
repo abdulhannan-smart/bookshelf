@@ -57,12 +57,10 @@ export async function addBook(input: CreateBookInput): Promise<Book> {
   return repo.createBook(input);
 }
 
-export async function deleteBook(id: string): Promise<Book> {
+export async function removeBook(id: string): Promise<void> {
   const deletedBook = await repo.deleteBook(id);
 
   if (!deletedBook) {
     throw createHttpError(`Book with id '${id}' not found`, 404);
   }
-
-  return deletedBook;
 }

@@ -1,6 +1,7 @@
 import request from "supertest";
 import fs from "fs/promises";
 import path from "path";
+import type { Book } from "@bookshelf/shared";
 import app from "../src/app";
 
 const DATA_DIR = path.resolve(__dirname, "../../../data");
@@ -67,45 +68,134 @@ describe("GET /api/books/:id", () => {
 
 // ─── GET /api/books/search ───────────────────────────────────────────────────
 describe("GET /api/books/search", () => {
-  it("returns books matching a title query", async () => {
-    const res = await request(app).get("/api/books/search?q=clean");
-    expect(res.status).toBe(200);
-    expect(res.body.data.length).toBeGreaterThan(0);
-    expect(res.body.data.some((b: any) => b.title.toLowerCase().includes("clean"))).toBe(true);
-  });
+  it("finds books by partial title match (case-insensitive)", async () => {
+    // Arrange
+    const partialTitle = "LEAN";
+    const expectedSubstring = "lean";
 
-  it("returns books matching an author query", async () => {
-    const res = await request(app).get("/api/books/search?q=orwell");
-    expect(res.status).toBe(200);
-    expect(res.body.data.length).toBeGreaterThan(0);
-    expect(res.body.data.some((b: any) => b.author.toLowerCase().includes("orwell"))).toBe(true);
-  });
+    // Act
+    const res = await request(app).get(`/api/books/search?q=${partialTitle}`);
 
-  it("returns books matching a genre query", async () => {
-    const res = await request(app).get("/api/books/search?q=fiction");
+    // Assert
     expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.count).toBe(res.body.data.length);
     expect(res.body.data.length).toBeGreaterThan(0);
-    res.body.data.forEach((b: any) => {
-      expect(b.genre.toLowerCase()).toBe("fiction");
+    const titles = (res.body.data as Book[]).map((b) => b.title.toLowerCase());
+    expect(titles.some((t) => t.includes(expectedSubstring))).toBe(true);
+    (res.body.data as Book[]).forEach((book) => {
+      const haystack = `${book.title} ${book.author} ${book.genre}`.toLowerCase();
+      expect(haystack).toContain(expectedSubstring);
     });
   });
 
-  it("returns 400 when q is missing", async () => {
-    const res = await request(app).get("/api/books/search");
+  it("finds books by partial author match", async () => {
+    // Arrange
+    const partialAuthor = "martin";
+
+    // Act
+    const res = await request(app).get(`/api/books/search?q=${partialAuthor}`);
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.count).toBe(res.body.data.length);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(
+      (res.body.data as Book[]).some((b) => b.author.toLowerCase().includes(partialAuthor))
+    ).toBe(true);
+  });
+
+  it("finds books by genre matching the query", async () => {
+    // Arrange
+    const genreQuery = "Technology";
+
+    // Act
+    const res = await request(app).get(
+      `/api/books/search?q=${encodeURIComponent(genreQuery)}`
+    );
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.count).toBe(res.body.data.length);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    (res.body.data as Book[]).forEach((book) => {
+      expect(book.genre).toBe(genreQuery);
+    });
+  });
+
+  it("returns 200 with an empty array when no books match (not 404)", async () => {
+    // Arrange
+    const unmatched = "zzznomatchzzzquery123";
+
+    // Act
+    const res = await request(app).get(`/api/books/search?q=${unmatched}`);
+
+    // Assert
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.count).toBe(0);
+  });
+
+  it("returns 400 when the q parameter is missing", async () => {
+    // Arrange
+    const pathWithoutQuery = "/api/books/search";
+
+    // Act
+    const res = await request(app).get(pathWithoutQuery);
+
+    // Assert
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/q/i);
+    expect(res.body.statusCode).toBe(400);
   });
 
-  it("returns empty array when no books match", async () => {
-    const res = await request(app).get("/api/books/search?q=zzznomatchzzz");
+  it("returns 400 when q is empty", async () => {
+    // Arrange
+    const pathWithEmptyQ = "/api/books/search?q=";
+
+    // Act
+    const res = await request(app).get(pathWithEmptyQ);
+
+    // Assert
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/q/i);
+    expect(res.body.statusCode).toBe(400);
+  });
+
+  it("returns 400 when q is only whitespace", async () => {
+    // Arrange
+    const whitespaceQ = "   \t  ";
+
+    // Act
+    const res = await request(app).get(
+      `/api/books/search?q=${encodeURIComponent(whitespaceQ)}`
+    );
+
+    // Assert
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/q/i);
+    expect(res.body.statusCode).toBe(400);
+  });
+
+  it("handles special characters in q without crashing", async () => {
+    // Arrange
+    const special = "!@#$%^&*()[]{}|\\:;\"'<>,.?/~`";
+
+    // Act
+    const res = await request(app).get(`/api/books/search?q=${encodeURIComponent(special)}`);
+
+    // Assert
     expect(res.status).toBe(200);
-    expect(res.body.data).toHaveLength(0);
-  });
-
-  it("search is case-insensitive", async () => {
-    const lower = await request(app).get("/api/books/search?q=dune");
-    const upper = await request(app).get("/api/books/search?q=DUNE");
-    expect(lower.body.data.length).toBe(upper.body.data.length);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.count).toBe(res.body.data.length);
   });
 });
 
@@ -188,8 +278,6 @@ describe("POST /api/books", () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error).toMatch(/year/i);
   });
-
-
 });
 
 // ─── DELETE /api/books/:id ───────────────────────────────────────────────────
@@ -212,7 +300,7 @@ describe("DELETE /api/books/:id", () => {
 
     expect(deleteRes.status).toBe(200);
     expect(deleteRes.body.success).toBe(true);
-    expect(deleteRes.body.data.id).toBe(createdId);
+    expect(deleteRes.body.data).toBeNull();
   });
 
   it("returns 404 when deleting a non-existent id", async () => {

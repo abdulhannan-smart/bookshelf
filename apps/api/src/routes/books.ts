@@ -57,8 +57,8 @@ router.delete(
   "/:id",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const deletedBook = await booksService.deleteBook(req.params.id);
-      res.json({ success: true, data: deletedBook });
+      await booksService.removeBook(req.params.id);
+      res.json({ success: true, data: null });
     } catch (err) {
       next(err);
     }

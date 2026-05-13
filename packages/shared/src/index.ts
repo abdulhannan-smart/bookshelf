@@ -43,6 +43,9 @@ export interface Review {
 
 export type CreateReviewInput = Omit<Review, "id" | "createdAt">;
 
+/** Body for POST /api/books/:id/reviews (bookId comes from the URL). */
+export type CreateReviewBody = Omit<CreateReviewInput, "bookId">;
+
 // ─── API helpers ─────────────────────────────────────────────────────────────
 export interface ApiSuccess<T> {
   success: true;

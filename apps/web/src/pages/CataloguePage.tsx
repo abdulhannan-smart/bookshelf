@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../lib/api";
-import type {Book} from "../lib/api";
+import type { Book } from "../lib/api";
 import { BookCard } from "../components/BookCard";
 import { SearchBar } from "../components/SearchBar";
 
