@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "bookshelf": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tsx",
+        "/Users/abdulhanan/Desktop/book shelf/bookshelf/apps/api/mcp-server.ts"
+      ]
+    }
+  }
+}

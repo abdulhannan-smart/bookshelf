@@ -56,7 +56,7 @@ const server = new McpServer({
 // ─── query_books ─────────────────────────────────────────────────────────────
 server.tool(
   "query_books",
-  "Search the BookShelf catalogue by a free-text term. Matches case-insensitively against book title, author, and genre and returns the full Book records for every partial match. Call this whenever the user asks for books on a topic, by an author, or in a genre (e.g. \"books about distributed systems\", \"anything by Orwell\", \"science books\"). Returns an empty array when nothing matches — that is not an error.",
+  "Search the BookShelf catalogue by a free-text term. Matches case-insensitively against book title, author, and genre and returns the full Book records for every partial match. Call this whenever the user asks for books on a topic, by an author, or in a genre (e.g. \"books about distributed systems\", \"anything by Orwell\", \"science books\"). Does NOT search the book description, ISBN, or publication year — for year/decade queries, fetch the catalogue and filter manually, or ask the user to refine. Returns an empty array when nothing matches — that is not an error.",
   {
     search: z
       .string()
@@ -80,7 +80,7 @@ server.tool(
 // ─── get_book_stats ──────────────────────────────────────────────────────────
 server.tool(
   "get_book_stats",
-  "Return aggregate statistics about the BookShelf catalogue: total number of books, a per-genre count breakdown, and the most recently added book (by addedAt). Call this when the user asks \"how many books do we have\", \"what's the genre split\", or \"what was added last\".",
+  "Return aggregate statistics about the BookShelf catalogue: total number of books, a per-genre count breakdown, and the most recently ADDED book (by addedAt timestamp, NOT by publication year — these are different and routinely confused). Call this when the user asks \"how many books do we have\", \"what's the genre split\", or \"what was added last\". For 'newest book by publication year' queries this is the WRONG tool — use query_books and sort client-side instead.",
   {},
   async () => {
     const books = await readBooks();
@@ -90,28 +90,32 @@ server.tool(
       byGenre[b.genre] = (byGenre[b.genre] ?? 0) + 1;
     }
 
-    const mostRecent =
+    const mostRecentlyAdded =
       books.length === 0
         ? null
         : books.reduce((latest, b) =>
             new Date(b.addedAt) > new Date(latest.addedAt) ? b : latest
           );
 
-    return asJson({ total: books.length, byGenre, mostRecent });
+    return asJson({ total: books.length, byGenre, mostRecentlyAdded });
   }
 );
 
 // ─── get_reviews_for_book ────────────────────────────────────────────────────
 server.tool(
   "get_reviews_for_book",
-  "Return every review stored for a single book, identified by its BookShelf id (e.g. 'book_001'). Returns an empty array if the book exists but has no reviews. Call this when the user asks what people thought of a specific book, or wants to see the reviews on a book they just looked up.",
+  "Return every review stored for a single book, identified by its BookShelf id (e.g. 'book_001'). Validates the bookId against the catalogue: if the book exists but has no reviews you get { count: 0, reviews: [] }; if the bookId is invalid you get { error: \"Book not found\", bookId } instead — so you can always tell the two cases apart. Call this when the user asks what people thought of a specific book, or wants to see the reviews on a book they just looked up.",
   {
     bookId: z
       .string()
       .describe("The BookShelf book id, e.g. 'book_001' or 'book_a1b2c3d4'."),
   },
   async ({ bookId }) => {
-    const reviews = await readReviews();
+    const [books, reviews] = await Promise.all([readBooks(), readReviews()]);
+    const book = books.find((b) => b.id === bookId);
+    if (!book) {
+      return asJson({ error: "Book not found", bookId });
+    }
     const matched = reviews.filter((r) => r.bookId === bookId);
     return asJson({ bookId, count: matched.length, reviews: matched });
   }
