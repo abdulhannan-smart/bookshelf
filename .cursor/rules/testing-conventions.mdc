@@ -1,0 +1,17 @@
+---
+description: Jest and Supertest integration test conventions
+globs: apps/api/tests/**/*.ts
+alwaysApply: false
+---
+
+# Testing Conventions (BookShelf API)
+
+- Use Jest + Supertest with AAA structure: Arrange, Act, Assert.
+- For API integration tests, import `app` from `src/app.ts` and call it with Supertest.
+- Do not boot a real HTTP server in tests.
+- Preserve seeded test data:
+  - Snapshot `data/books.json` in `beforeAll`.
+  - Restore the original file in `afterAll`.
+  - Tests must not leave persistent mutations behind.
+- Validate both HTTP status and API payload shape (`success`, `data`/`error`, `count` or `statusCode` where applicable).
+- Prefer focused test cases per behavior (success path, validation failure, not found) over large mixed tests.

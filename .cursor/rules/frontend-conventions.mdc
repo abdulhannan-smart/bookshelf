@@ -1,0 +1,18 @@
+---
+description: Frontend React and API client usage conventions
+globs: apps/web/src/**/*.tsx
+alwaysApply: false
+---
+
+# Frontend Conventions (BookShelf Web)
+
+- Build UI with React function components and keep component logic readable and focused.
+- Route all backend requests through `src/lib/api.ts`; do not call `fetch` directly in components.
+- Import shared interfaces from the API module using type-only imports:
+  - `import type { Book } from "../lib/api"`
+- Keep styling aligned with project design language:
+  - cream background tones
+  - brown text
+  - forest-green accents/focus states
+- Maintain responsive book grid behavior: 1 column (mobile), 2 columns (tablet), 3 columns (desktop).
+- Prefer Tailwind utility classes for layout and visual styling consistency.

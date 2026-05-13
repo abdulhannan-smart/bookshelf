@@ -1,0 +1,18 @@
+---
+description: JSON data layer boundaries and repository rules
+globs: apps/api/src/data/**/*.ts
+alwaysApply: false
+---
+
+# Data Layer Rules (BookShelf)
+
+- Keep all JSON file I/O in this layer only; routes and services must never call `fs` directly.
+- `jsonStore.ts` is the only place that should use `fs.readFile` and `fs.writeFile`.
+- Repository modules should expose CRUD-style operations for callers, not raw file utilities.
+- Follow full-document write behavior: read array, mutate in memory, write the full array back.
+- Do not introduce partial writes, file streaming, locks, or concurrency control.
+- Keep id conventions consistent when creating entities:
+  - `book_` + 8 hex chars
+  - `shelf_` + 8 hex chars
+  - `review_` + 8 hex chars
+- Treat `data/books.json` seed records as persistent baseline data; do not delete seeded books.

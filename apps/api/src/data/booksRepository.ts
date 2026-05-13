@@ -38,3 +38,16 @@ export async function createBook(input: CreateBookInput): Promise<Book> {
   await writeJson(FILE, books);
   return newBook;
 }
+
+export async function deleteBook(id: string): Promise<Book | undefined> {
+  const books = await getAllBooks();
+  const index = books.findIndex((book) => book.id === id);
+
+  if (index === -1) {
+    return undefined;
+  }
+
+  const [deletedBook] = books.splice(index, 1);
+  await writeJson(FILE, books);
+  return deletedBook;
+}

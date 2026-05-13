@@ -192,6 +192,62 @@ describe("POST /api/books", () => {
 
 });
 
+// ─── DELETE /api/books/:id ───────────────────────────────────────────────────
+describe("DELETE /api/books/:id", () => {
+  it("deletes an existing book and returns 200", async () => {
+    const createPayload = {
+      title: "Delete Me",
+      author: "Temporary Author",
+      genre: "Technology",
+      year: 2020,
+      isbn: "978-0000000001",
+      description: "Created only for delete test.",
+      coverUrl: null,
+    };
+
+    const createRes = await request(app).post("/api/books").send(createPayload);
+    const createdId: string = createRes.body.data.id;
+
+    const deleteRes = await request(app).delete(`/api/books/${createdId}`);
+
+    expect(deleteRes.status).toBe(200);
+    expect(deleteRes.body.success).toBe(true);
+    expect(deleteRes.body.data.id).toBe(createdId);
+  });
+
+  it("returns 404 when deleting a non-existent id", async () => {
+    const res = await request(app).delete("/api/books/book_doesnotexist");
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/not found/i);
+    expect(res.body.statusCode).toBe(404);
+  });
+
+  it("removes the book so GET /api/books/:id returns 404", async () => {
+    const createPayload = {
+      title: "Delete Then Verify",
+      author: "Verification Author",
+      genre: "Science",
+      year: 2019,
+      isbn: "978-0000000002",
+      description: "Ensures deleted books are no longer retrievable.",
+      coverUrl: null,
+    };
+
+    const createRes = await request(app).post("/api/books").send(createPayload);
+    const createdId: string = createRes.body.data.id;
+
+    const deleteRes = await request(app).delete(`/api/books/${createdId}`);
+    expect(deleteRes.status).toBe(200);
+
+    const getRes = await request(app).get(`/api/books/${createdId}`);
+    expect(getRes.status).toBe(404);
+    expect(getRes.body.success).toBe(false);
+    expect(getRes.body.statusCode).toBe(404);
+  });
+});
+
 // ─── 404 catch-all ───────────────────────────────────────────────────────────
 describe("404 handler", () => {
   it("returns 404 for unknown routes", async () => {

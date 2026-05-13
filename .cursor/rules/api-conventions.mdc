@@ -1,0 +1,18 @@
+---
+description: API route and response conventions for Express handlers
+globs: apps/api/**/*.ts
+alwaysApply: false
+---
+
+# API Conventions (BookShelf)
+
+- Keep route handlers thin: parse request data, call a service, send the response.
+- Put validation and business rules in services, not route files.
+- Preserve the shared response envelope for every endpoint:
+  - Success: `{ success: true, data: <payload> }`
+  - List/search success also includes `count`.
+  - Error: `{ success: false, error: "<message>", statusCode: <httpStatus> }`
+- Ensure `statusCode` in error JSON matches the HTTP status code.
+- Let service errors bubble to centralized error middleware; avoid custom per-route error shapes.
+- In the books router, declare `/search` before `/:id` so `"search"` is never parsed as an id.
+- Follow existing endpoint patterns under `/api/books`, `/api/health`, and related resources.
