@@ -10,13 +10,18 @@ const GENRE_COLOURS: Record<string, string> = {
 
 interface Props {
   book: Book;
+  onClick?: () => void;
 }
 
-export function BookCard({ book }: Props) {
+export function BookCard({ book, onClick }: Props) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-5
-                    hover:shadow-md hover:-translate-y-0.5 transition-all
-                    duration-200 flex flex-col gap-3">
+    <button
+      type="button"
+      onClick={onClick}
+      className="bg-white rounded-xl shadow-sm border border-cream-200 p-5
+                 hover:shadow-md hover:-translate-y-0.5 transition-all
+                 duration-200 flex flex-col gap-3 text-left
+                 focus:outline-none focus:ring-2 focus:ring-forest-600">
 
       {/* Cover placeholder */}
       <div className="w-full h-40 bg-cream-100 rounded-lg flex items-center
@@ -40,6 +45,6 @@ export function BookCard({ book }: Props) {
 
       {/* Year */}
       <p className="text-xs text-gray-400 mt-auto">{book.year}</p>
-    </div>
+    </button>
   );
 }

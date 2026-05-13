@@ -12,8 +12,23 @@ export interface Book {
   addedAt: string;
 }
 
-async function request<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`);
+export interface Review {
+  id: string;
+  bookId: string;
+  reviewer: string;
+  rating: number;
+  body: string;
+  createdAt: string;
+}
+
+export interface CreateReviewInput {
+  reviewer: string;
+  rating: number;
+  body: string;
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE_URL}${path}`, init);
   const json = await res.json();
   if (!json.success) throw new Error(json.error ?? "API error");
   return json.data as T;
@@ -28,4 +43,14 @@ export const api = {
 
   getBook: (id: string): Promise<Book> =>
     request<Book>(`/books/${id}`),
+
+  getReviews: (bookId: string): Promise<Review[]> =>
+    request<Review[]>(`/books/${encodeURIComponent(bookId)}/reviews`),
+
+  addReview: (bookId: string, review: CreateReviewInput): Promise<Review> =>
+    request<Review>(`/books/${encodeURIComponent(bookId)}/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(review),
+    }),
 };

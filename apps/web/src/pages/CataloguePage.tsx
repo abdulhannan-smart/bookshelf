@@ -4,7 +4,11 @@ import type {Book} from "../lib/api";
 import { BookCard } from "../components/BookCard";
 import { SearchBar } from "../components/SearchBar";
 
-export function CataloguePage() {
+interface Props {
+  onSelectBook?: (bookId: string) => void;
+}
+
+export function CataloguePage({ onSelectBook }: Props = {}) {
   const [books, setBooks]         = useState<Book[]>([]);
   const [query, setQuery]         = useState("");
   const [loading, setLoading]     = useState(true);
@@ -111,7 +115,11 @@ export function CataloguePage() {
         {!loading && books.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} />
+              <BookCard
+                key={book.id}
+                book={book}
+                onClick={() => onSelectBook?.(book.id)}
+              />
             ))}
           </div>
         )}

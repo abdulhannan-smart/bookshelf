@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "bookId": "book_002",
+    "reviewer": "khubaib",
+    "rating": 4,
+    "body": "Good book",
+    "id": "review_d9325896",
+    "createdAt": "2026-05-13T11:55:44.931Z"
+  },
+  {
+    "bookId": "book_030",
+    "reviewer": "ALi",
+    "rating": 5,
+    "body": "book is not good",
+    "id": "review_1e7f7db5",
+    "createdAt": "2026-05-13T11:56:18.814Z"
+  }
+]
