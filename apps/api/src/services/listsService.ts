@@ -42,6 +42,9 @@ export async function addList(
   if (!name?.trim()) {
     throw createHttpError("'name' is required", 400);
   }
+  if (name.length > 100) {
+    throw createHttpError("'name' must be 100 characters or fewer", 400);
+  }
   if (typeof description !== "string") {
     throw createHttpError("'description' is required", 400);
   }
