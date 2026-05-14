@@ -1,5 +1,6 @@
 import { Review, CreateReviewInput } from "@bookshelf/shared";
 import * as repo from "../data/reviewsRepository";
+import type { RatingStats } from "../data/reviewsRepository";
 import * as booksRepo from "../data/booksRepository";
 import { AppError } from "../middleware/errorHandler";
 
@@ -17,6 +18,14 @@ export async function listReviewsForBook(bookId: string): Promise<Review[]> {
   return repo.getReviewsByBookId(bookId);
 }
 
+export async function getRatingStats(bookId: string): Promise<RatingStats> {
+  const book = await booksRepo.getBookById(bookId);
+  if (!book) {
+    throw createHttpError(`Book with id '${bookId}' not found`, 404);
+  }
+  return repo.getRatingStats(bookId);
+}
+
 export async function addReview(
   bookId: string,
   input: Omit<CreateReviewInput, "bookId">
@@ -26,7 +35,7 @@ export async function addReview(
     throw createHttpError(`Book with id '${bookId}' not found`, 404);
   }
 
-  const { reviewer, rating, body } = input;
+  const { reviewer, rating, body, userId } = input;
 
   if (!reviewer?.trim()) {
     throw createHttpError("'reviewer' is required", 400);
@@ -41,5 +50,11 @@ export async function addReview(
     throw createHttpError("'body' is required", 400);
   }
 
-  return repo.createReview({ bookId, reviewer, rating, body });
+  return repo.createReview({
+    bookId,
+    reviewer,
+    rating,
+    body,
+    userId: userId ?? null,
+  });
 }

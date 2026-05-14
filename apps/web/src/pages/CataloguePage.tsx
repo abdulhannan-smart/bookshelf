@@ -6,9 +6,10 @@ import { SearchBar } from "../components/SearchBar";
 
 interface Props {
   onSelectBook?: (bookId: string) => void;
+  onShowLists?: () => void;
 }
 
-export function CataloguePage({ onSelectBook }: Props = {}) {
+export function CataloguePage({ onSelectBook, onShowLists }: Props = {}) {
   const [books, setBooks]         = useState<Book[]>([]);
   const [query, setQuery]         = useState("");
   const [loading, setLoading]     = useState(true);
@@ -62,12 +63,21 @@ export function CataloguePage({ onSelectBook }: Props = {}) {
               <p className="text-xs text-gray-500">Your personal catalogue</p>
             </div>
           </div>
-          <div className="sm:ml-auto">
+          <div className="sm:ml-auto flex items-center gap-4">
             <SearchBar
               value={query}
               onChange={handleSearch}
               isSearching={searching}
             />
+            <button
+              type="button"
+              onClick={onShowLists}
+              className="text-sm font-medium text-brown-700 hover:text-brown-800
+                         hover:underline focus:outline-none focus:ring-2
+                         focus:ring-forest-600 rounded px-1 whitespace-nowrap"
+            >
+              Lists →
+            </button>
           </div>
         </div>
       </header>

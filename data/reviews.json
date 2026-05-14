@@ -14,5 +14,31 @@
     "body": "book is not good",
     "id": "review_1e7f7db5",
     "createdAt": "2026-05-13T11:56:18.814Z"
+  },
+  {
+    "bookId": "book_001",
+    "reviewer": "khubaib",
+    "rating": 3,
+    "body": "Writing",
+    "id": "review_e1f3465c",
+    "createdAt": "2026-05-14T10:41:43.525Z"
+  },
+  {
+    "bookId": "book_001",
+    "reviewer": "Ada Lovelace",
+    "rating": 5,
+    "body": "A foundational read on writing clean code.",
+    "userId": "user_21922c2a",
+    "id": "review_2dd71529",
+    "createdAt": "2026-05-14T12:22:05.171Z"
+  },
+  {
+    "bookId": "book_003",
+    "reviewer": "Ada Lovelace",
+    "rating": 4,
+    "body": "Solid pragmatic advice for everyday engineering.",
+    "userId": "user_21922c2a",
+    "id": "review_e1667ff4",
+    "createdAt": "2026-05-14T12:22:05.182Z"
   }
 ]

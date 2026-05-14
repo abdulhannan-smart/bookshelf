@@ -16,6 +16,19 @@ router.get(
   }
 );
 
+// GET /api/books/:id/ratings
+router.get(
+  "/:id/ratings",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const stats = await reviewsService.getRatingStats(req.params.id);
+      res.json({ success: true, data: stats });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // POST /api/books/:id/reviews
 router.post(
   "/:id/reviews",

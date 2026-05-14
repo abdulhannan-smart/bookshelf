@@ -31,6 +31,27 @@ export interface Shelf {
 
 export type CreateShelfInput = Omit<Shelf, "id" | "createdAt">;
 
+// ─── Reading List ────────────────────────────────────────────────────────────
+export interface ReadingList {
+  id: string;
+  name: string;
+  description: string;
+  bookIds: string[];
+  userId?: string | null;
+  createdAt: string;
+}
+
+export type CreateReadingListInput = Pick<
+  ReadingList,
+  "name" | "description"
+> & { userId?: string | null };
+
+export interface ReadingListWithBooks extends Omit<ReadingList, "bookIds"> {
+  books: Book[];
+}
+
+export type ReadingListBookAction = "add" | "remove";
+
 // ─── Review ──────────────────────────────────────────────────────────────────
 export interface Review {
   id: string;
@@ -38,10 +59,23 @@ export interface Review {
   reviewer: string;
   rating: number; // 1–5
   body: string;
+  userId?: string | null;
   createdAt: string;
 }
 
 export type CreateReviewInput = Omit<Review, "id" | "createdAt">;
+
+// ─── User ────────────────────────────────────────────────────────────────────
+export interface User {
+  id: string;
+  displayName: string;
+  avatarUrl: string | null;
+  favouriteGenres: Genre[];
+  createdAt: string;
+}
+
+export type CreateUserInput = Omit<User, "id" | "createdAt">;
+export type UpdateUserInput = Partial<CreateUserInput>;
 
 // ─── API helpers ─────────────────────────────────────────────────────────────
 export interface ApiSuccess<T> {
