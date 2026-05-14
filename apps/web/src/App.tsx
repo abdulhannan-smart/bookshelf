@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { CataloguePage } from "./pages/CataloguePage";
 import { BookDetailPage } from "./pages/BookDetailPage";
 import { ListsPage } from "./pages/ListsPage";
+import { ListDetailPage } from "./pages/ListDetailPage";
 import { ProfilePage } from "./pages/ProfilePage";
 
 type Route =
   | { name: "catalogue" }
   | { name: "book"; bookId: string }
   | { name: "lists" }
+  | { name: "list"; listId: string }
   | { name: "profile"; userId: string };
 
 function parseHash(): Route {
@@ -18,6 +20,10 @@ function parseHash(): Route {
   const userMatch = window.location.hash.match(/^#\/users\/([^/?#]+)/);
   if (userMatch) {
     return { name: "profile", userId: decodeURIComponent(userMatch[1]) };
+  }
+  const listMatch = window.location.hash.match(/^#\/lists\/([^/?#]+)/);
+  if (listMatch) {
+    return { name: "list", listId: decodeURIComponent(listMatch[1]) };
   }
   if (window.location.hash.match(/^#\/lists\/?$/)) {
     return { name: "lists" };
@@ -54,7 +60,18 @@ export default function App() {
     return (
       <ListsPage
         onBack={() => navigate("/")}
-        onSelectList={() => { /* list detail page not yet built */ }}
+        onSelectList={(id) => navigate(`/lists/${id}`)}
+      />
+    );
+  }
+
+  if (route.name === "list") {
+    return (
+      <ListDetailPage
+        key={route.listId}
+        listId={route.listId}
+        onBack={() => navigate("/lists")}
+        onSelectBook={(id) => navigate(`/books/${id}`)}
       />
     );
   }
