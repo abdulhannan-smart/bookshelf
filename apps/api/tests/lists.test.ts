@@ -65,6 +65,16 @@ describe("POST /api/lists", () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error).toMatch(/description/i);
   });
+
+  it("returns 400 when name exceeds 100 characters", async () => {
+    const res = await request(app)
+      .post("/api/lists")
+      .send({ ...validList, name: "A".repeat(101) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/100/);
+  });
 });
 
 // ─── GET /api/lists ──────────────────────────────────────────────────────────
@@ -237,9 +247,8 @@ describe("DELETE /api/lists/:id", () => {
 
     const res = await request(app).delete(`/api/lists/${listId}`);
 
-    // The contract calls this "success" — accept either 200 (with body)
-    // or 204 (no body), both of which are valid REST conventions.
-    expect([200, 204]).toContain(res.status);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
   });
 
   it("returns 404 when deleting a non-existent id", async () => {
