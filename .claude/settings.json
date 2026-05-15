@@ -1,0 +1,14 @@
+{
+  "skills": [
+    {
+      "name": "review-tests-istqb",
+      "description": "Review the BookShelf project's unit and integration tests against ISTQB Foundation Level standards. Identifies gaps in test design techniques, coverage, independence, and traceability.",
+      "path": "~/.claude/skills/review-tests-istqb.md"
+    },
+    {
+      "name": "scaffold-endpoint",
+      "description": "Add a new REST endpoint to apps/api following the BookShelf routes → services → repository pattern, with matching Supertest integration tests.",
+      "path": "~/.claude/skills/scaffold-endpoint.md"
+    }
+  ]
+}
