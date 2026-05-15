@@ -3,15 +3,18 @@ import { api } from "../lib/api";
 import type { Book, Review } from "../lib/api";
 import { ReviewCard } from "../components/ReviewCard";
 import { AddReviewForm } from "../components/AddReviewForm";
+import { BookCard } from "../components/BookCard";
 
 interface Props {
   bookId: string;
   onBack: () => void;
+  onSelectBook?: (bookId: string) => void;
 }
 
-export function BookDetailPage({ bookId, onBack }: Props) {
+export function BookDetailPage({ bookId, onBack, onSelectBook }: Props) {
   const [book, setBook] = useState<Book | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [recommendations, setRecommendations] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,12 +24,18 @@ export function BookDetailPage({ bookId, onBack }: Props) {
     setError(null);
     setBook(null);
     setReviews([]);
+    setRecommendations([]);
 
-    Promise.all([api.getBook(bookId), api.getReviews(bookId)])
-      .then(([b, r]) => {
+    Promise.all([
+      api.getBook(bookId),
+      api.getReviews(bookId),
+      api.getRecommendations(bookId),
+    ])
+      .then(([b, r, recs]) => {
         if (cancelled) return;
         setBook(b);
         setReviews(r);
+        setRecommendations(recs);
       })
       .catch((e) => {
         if (cancelled) return;
@@ -123,6 +132,22 @@ export function BookDetailPage({ bookId, onBack }: Props) {
               bookId={book.id}
               onSuccess={(r) => setReviews((prev) => [...prev, r])}
             />
+
+            {/* You might also like */}
+            {recommendations.length > 0 && (
+              <section className="flex flex-col gap-3">
+                <h2 className="font-bold text-brown-800">You might also like</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {recommendations.map((rec) => (
+                    <BookCard
+                      key={rec.id}
+                      book={rec}
+                      onClick={() => onSelectBook?.(rec.id)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
           </>
         )}
       </main>

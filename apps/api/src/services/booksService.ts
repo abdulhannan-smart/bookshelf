@@ -17,6 +17,23 @@ export async function findBook(id: string): Promise<Book> {
   return book;
 }
 
+export async function findRecommendations(
+  id: string,
+  limit = 5
+): Promise<Book[]> {
+  const source = await repo.getBookById(id);
+  if (!source) {
+    const err = new Error(`Book with id '${id}' not found`);
+    (err as any).statusCode = 404;
+    throw err;
+  }
+
+  const all = await repo.getAllBooks();
+  return all
+    .filter((b) => b.id !== source.id && b.genre === source.genre)
+    .slice(0, limit);
+}
+
 export async function searchBooks(query: string): Promise<Book[]> {
   if (!query || !query.trim()) {
     const err = new Error("Query parameter 'q' is required");

@@ -87,11 +87,14 @@ GET    /api/health
 GET    /api/books
 GET    /api/books/search?q=
 GET    /api/books/:id
+GET    /api/books/:id/recommendations
 POST   /api/books
 DELETE /api/books/:id
 GET    /api/books/:id/reviews
 POST   /api/books/:id/reviews
 ```
+
+`/api/books/:id/recommendations` returns up to 5 other books in the same genre as `:id`, excluding the source book. 404 if `:id` doesn't exist. Declared before `/:id` in `routes/books.ts` for consistency with the route-ordering rule.
 
 GOTCHA: `/search` MUST be declared before `/:id` in the router. Otherwise Express matches `"search"` as a book id and returns 404.
 

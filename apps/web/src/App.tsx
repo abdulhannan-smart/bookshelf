@@ -52,6 +52,7 @@ export default function App() {
         key={route.bookId}
         bookId={route.bookId}
         onBack={() => navigate("/")}
+        onSelectBook={(id) => navigate(`/books/${id}`)}
       />
     );
   }
