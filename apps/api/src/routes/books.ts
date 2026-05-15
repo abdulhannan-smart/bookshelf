@@ -31,6 +31,19 @@ router.get("/", async (_req: Request, res: Response, next: NextFunction) => {
   }
 });
 
+// GET /api/books/:id/recommendations — must come before /:id
+router.get(
+  "/:id/recommendations",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const results = await booksService.findRecommendations(req.params.id);
+      res.json({ success: true, data: results, count: results.length });
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 // GET /api/books/:id
 router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
   try {

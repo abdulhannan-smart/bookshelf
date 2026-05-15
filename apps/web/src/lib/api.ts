@@ -109,6 +109,9 @@ export const api = {
   getBook: (id: string): Promise<Book> =>
     request<Book>(`/books/${id}`),
 
+  getRecommendations: (id: string): Promise<Book[]> =>
+    request<Book[]>(`/books/${encodeURIComponent(id)}/recommendations`),
+
   getReviews: (bookId: string): Promise<Review[]> =>
     request<Review[]>(`/books/${encodeURIComponent(bookId)}/reviews`),
 

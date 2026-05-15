@@ -192,6 +192,39 @@ describe("POST /api/books", () => {
 
 });
 
+// ─── GET /api/books/:id/recommendations ──────────────────────────────────────
+describe("GET /api/books/:id/recommendations", () => {
+  it("returns up to 5 books in the same genre", async () => {
+    const sourceRes = await request(app).get("/api/books/book_001");
+    const sourceGenre = sourceRes.body.data.genre;
+
+    const res = await request(app).get("/api/books/book_001/recommendations");
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeLessThanOrEqual(5);
+    expect(res.body.count).toBe(res.body.data.length);
+    res.body.data.forEach((b: any) => {
+      expect(b.genre).toBe(sourceGenre);
+    });
+  });
+
+  it("excludes the source book from recommendations", async () => {
+    const res = await request(app).get("/api/books/book_001/recommendations");
+    expect(res.body.data.every((b: any) => b.id !== "book_001")).toBe(true);
+  });
+
+  it("returns 404 when the source book does not exist", async () => {
+    const res = await request(app).get(
+      "/api/books/does_not_exist/recommendations"
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error).toMatch(/not found/i);
+  });
+});
+
 // ─── 404 catch-all ───────────────────────────────────────────────────────────
 describe("404 handler", () => {
   it("returns 404 for unknown routes", async () => {
